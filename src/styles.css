@@ -1,0 +1,880 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Link, NavLink, Route, Routes, useLocation, useParams } from 'react-router-dom';
+
+const deviceList = [
+  {
+    id: 'redmi-note-11t-5g',
+    name: 'Redmi Note 11T 5G',
+    codename: 'xaga',
+    androidVersions: ['Android 13', 'Android 12', 'Android 11'],
+    image: '📱',
+    romCount: 14,
+    shortText: 'Performance-focused 5G-ready budget flagship with MediaTek Dimensity 810 and a bright 6.6" display.',
+    specs: [
+      { label: 'Display', value: '6.6" FHD+ 120Hz' },
+      { label: 'Chipset', value: 'MediaTek Dimensity 810' },
+      { label: 'RAM / Storage', value: '6/8GB + 128GB' },
+      { label: 'Battery', value: '5000mAh / 33W' },
+      { label: 'Camera', value: '50MP + 8MP + 2MP' },
+    ],
+    categories: ['Stock ROM', 'Custom ROM', 'Recovery', 'Firmware', 'Kernel'],
+  },
+  {
+    id: 'poco-m4-pro',
+    name: 'POCO M4 Pro',
+    codename: 'miles',
+    androidVersions: ['Android 13', 'Android 12', 'Android 11'],
+    image: '⚡',
+    romCount: 11,
+    shortText: 'A value-packed device with smooth performance, strong battery life, and a community-first software scene.',
+    specs: [
+      { label: 'Display', value: '6.43" FHD+ 90Hz' },
+      { label: 'Chipset', value: 'MediaTek Helio G96' },
+      { label: 'RAM / Storage', value: '4/6GB + 64/128GB' },
+      { label: 'Battery', value: '5000mAh / 33W' },
+      { label: 'Camera', value: '64MP + 8MP + 2MP' },
+    ],
+    categories: ['Stock ROM', 'Custom ROM', 'Recovery', 'GApps', 'Firmware'],
+  },
+];
+
+const roms = [
+  {
+    id: 'rn11t-stock-v13-2024-11',
+    name: 'MIUI 14.0.6 Stable',
+    device: 'Redmi Note 11T 5G',
+    deviceId: 'redmi-note-11t-5g',
+    codename: 'xaga',
+    androidVersion: 'Android 13',
+    version: 'MIUI 14',
+    build: 'V14.0.6.0.TGRCNXM',
+    type: 'Stock ROM',
+    size: '4.22 GB',
+    releaseDate: '2024-11-12',
+    maintainer: 'Xiaomi Firmware',
+    changelog: 'https://example.com/changelog/rn11t-miui14',
+    downloadUrl: 'https://example.com/downloads/redmi-note-11t-5g/miui-14-stable.zip',
+    mirrorUrl: 'https://mirror.example.com/redmi-note-11t-5g/miui-14-stable.zip',
+    checksum: '3a51d8f4e1c9ef8bb0a43134d7cc0f60',
+    sample: true,
+  },
+  {
+    id: 'rn11t-lineage-21',
+    name: 'LineageOS 21',
+    device: 'Redmi Note 11T 5G',
+    deviceId: 'redmi-note-11t-5g',
+    codename: 'xaga',
+    androidVersion: 'Android 14',
+    version: '21.0',
+    build: 'lineage-21.0-20241114',
+    type: 'Custom ROM',
+    size: '1.12 GB',
+    releaseDate: '2024-11-14',
+    maintainer: 'Nightly Builds',
+    changelog: 'https://example.com/changelog/lineageos-21',
+    downloadUrl: 'https://example.com/downloads/redmi-note-11t-5g/lineageos-21.zip',
+    mirrorUrl: 'https://mirror.example.com/redmi-note-11t-5g/lineageos-21.zip',
+    checksum: '4efc87b30f302d5c7a7432e1e6345d41',
+    sample: true,
+  },
+  {
+    id: 'rn11t-recovery-orangefox',
+    name: 'OrangeFox Recovery',
+    device: 'Redmi Note 11T 5G',
+    deviceId: 'redmi-note-11t-5g',
+    codename: 'xaga',
+    androidVersion: 'Android 13',
+    version: 'R11.1',
+    build: 'OrangeFox-R11.1-Unofficial-xaga',
+    type: 'Recovery',
+    size: '185 MB',
+    releaseDate: '2024-10-28',
+    maintainer: 'OrangeFox Team',
+    changelog: 'https://example.com/changelog/orangefox-xaga',
+    downloadUrl: 'https://example.com/downloads/redmi-note-11t-5g/orangefox.zip',
+    mirrorUrl: '',
+    checksum: '9cde83eea3a66972a905b995eb48cc3e',
+    sample: true,
+  },
+  {
+    id: 'rn11t-firmware-fastboot',
+    name: 'Fastboot Firmware Package',
+    device: 'Redmi Note 11T 5G',
+    deviceId: 'redmi-note-11t-5g',
+    codename: 'xaga',
+    androidVersion: 'Android 12',
+    version: 'V12.5.10.0',
+    build: 'xaga_global_images_12.5.10.0',
+    type: 'Firmware',
+    size: '4.95 GB',
+    releaseDate: '2024-09-21',
+    maintainer: 'Xiaomi Firmware',
+    changelog: 'https://example.com/changelog/rn11t-fastboot',
+    downloadUrl: 'https://example.com/downloads/redmi-note-11t-5g/fastboot-firmware.zip',
+    mirrorUrl: 'https://mirror.example.com/redmi-note-11t-5g/fastboot-firmware.zip',
+    checksum: 'e7d0e3ddaede1db0d50df10d798d1e5d',
+    sample: true,
+  },
+  {
+    id: 'poco-m4-pro-stock-v13',
+    name: 'HyperOS 1.0 Stable',
+    device: 'POCO M4 Pro',
+    deviceId: 'poco-m4-pro',
+    codename: 'miles',
+    androidVersion: 'Android 13',
+    version: 'HyperOS 1.0',
+    build: 'OS1.0.2.0.TGCMIXM',
+    type: 'Stock ROM',
+    size: '4.02 GB',
+    releaseDate: '2024-10-18',
+    maintainer: 'Xiaomi Firmware',
+    changelog: 'https://example.com/changelog/poco-m4-pro-hyperos',
+    downloadUrl: 'https://example.com/downloads/poco-m4-pro/hyperos-1.0.zip',
+    mirrorUrl: 'https://mirror.example.com/poco-m4-pro/hyperos-1.0.zip',
+    checksum: 'b8f12ab4166320dd6d23b1d929d96d2e',
+    sample: true,
+  },
+  {
+    id: 'poco-m4-pro-lineage-20',
+    name: 'LineageOS 20',
+    device: 'POCO M4 Pro',
+    deviceId: 'poco-m4-pro',
+    codename: 'miles',
+    androidVersion: 'Android 13',
+    version: '20.0',
+    build: 'lineage-20.0-20241014',
+    type: 'Custom ROM',
+    size: '1.08 GB',
+    releaseDate: '2024-10-14',
+    maintainer: 'Build Community',
+    changelog: 'https://example.com/changelog/lineageos-20',
+    downloadUrl: 'https://example.com/downloads/poco-m4-pro/lineageos-20.zip',
+    mirrorUrl: '',
+    checksum: '86aab4d82d94ee2dca7c83c5604f521',
+    sample: true,
+  },
+  {
+    id: 'poco-m4-pro-recovery-twrp',
+    name: 'TWRP Recovery',
+    device: 'POCO M4 Pro',
+    deviceId: 'poco-m4-pro',
+    codename: 'miles',
+    androidVersion: 'Android 12',
+    version: '3.7.1',
+    build: 'twrp-3.7.1-miles',
+    type: 'Recovery',
+    size: '158 MB',
+    releaseDate: '2024-08-25',
+    maintainer: 'TWRP Team',
+    changelog: 'https://example.com/changelog/twrp-poco-m4-pro',
+    downloadUrl: 'https://example.com/downloads/poco-m4-pro/twrp-3.7.1.img',
+    mirrorUrl: 'https://mirror.example.com/poco-m4-pro/twrp-3.7.1.img',
+    checksum: 'd31a09d3d586d12a611b738f34d087ab',
+    sample: true,
+  },
+  {
+    id: 'poco-m4-pro-gapps-14',
+    name: 'GApps Pico Package',
+    device: 'POCO M4 Pro',
+    deviceId: 'poco-m4-pro',
+    codename: 'miles',
+    androidVersion: 'Android 14',
+    version: '14.0',
+    build: 'pico-20241114',
+    type: 'GApps',
+    size: '560 MB',
+    releaseDate: '2024-11-15',
+    maintainer: 'OpenGApps',
+    changelog: 'https://example.com/changelog/poco-gapps',
+    downloadUrl: 'https://example.com/downloads/poco-m4-pro/gapps-pico.zip',
+    mirrorUrl: '',
+    checksum: '66d0f3656fb57f4103cf94a58dbf7a3f',
+    sample: true,
+  },
+  {
+    id: 'rn11t-kernel-begonia',
+    name: 'Kernel Source Bundle',
+    device: 'Redmi Note 11T 5G',
+    deviceId: 'redmi-note-11t-5g',
+    codename: 'xaga',
+    androidVersion: 'Android 13',
+    version: '6.1.56',
+    build: 'xaga-oss-kernel',
+    type: 'Kernel',
+    size: '247 MB',
+    releaseDate: '2024-09-05',
+    maintainer: 'Kernel Devs',
+    changelog: 'https://example.com/changelog/kernel-xaga',
+    downloadUrl: 'https://example.com/downloads/redmi-note-11t-5g/kernel-bundle.zip',
+    mirrorUrl: 'https://mirror.example.com/redmi-note-11t-5g/kernel-bundle.zip',
+    checksum: 'f9ad7c195d3b2f3677fe425dcb53c87d',
+    sample: true,
+  },
+];
+
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+function App() {
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem('rom-vault-theme');
+    if (stored) return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.body.dataset.theme = theme;
+    localStorage.setItem('rom-vault-theme', theme);
+  }, [theme]);
+
+  return (
+    <div className="app-shell">
+      <SiteHeader theme={theme} setTheme={setTheme} />
+      <main className="page-content">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/:slug" element={<DevicePage />} />
+          <Route path="/roms" element={<RomsPage />} />
+          <Route path="/download/:romId" element={<DownloadPage />} />
+          <Route path="/guides" element={<GuidesPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </main>
+      <SiteFooter />
+    </div>
+  );
+}
+
+function SiteHeader({ theme, setTheme }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const navItems = [
+    { label: 'Home', to: '/' },
+    { label: 'Devices', to: '/redmi-note-11t-5g' },
+    { label: 'ROMs', to: '/roms' },
+    { label: 'Guides', to: '/guides' },
+    { label: 'About', to: '/about' },
+  ];
+
+  return (
+    <header className="topbar glass-panel">
+      <div className="brand-wrap">
+        <Link to="/" className="brand-logo" aria-label="ROM Vault home">
+          <span className="brand-mark">RV</span>
+          <span>ROM Vault</span>
+        </Link>
+      </div>
+
+      <nav className={`nav-links ${menuOpen ? 'open' : ''}`} aria-label="Main navigation">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+            onClick={() => setMenuOpen(false)}
+          >
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="nav-actions">
+        <button
+          type="button"
+          className="theme-toggle"
+          onClick={() => setTheme((current) => (current === 'dark' ? 'light' : 'dark'))}
+          aria-label="Toggle light and dark theme"
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+        <button type="button" className="menu-toggle" onClick={() => setMenuOpen((o) => !o)} aria-label="Toggle menu">
+          ☰
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function HomePage() {
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 450);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const filteredDevices = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return deviceList;
+    return deviceList.filter(
+      (device) =>
+        device.name.toLowerCase().includes(q) ||
+        device.codename.toLowerCase().includes(q) ||
+        device.androidVersions.some((version) => version.toLowerCase().includes(q))
+    );
+  }, [search]);
+
+  const latestRoms = [...roms].sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate)).slice(0, 4);
+  const recentFiles = [...roms].sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate)).slice(0, 3);
+
+  return (
+    <>
+      <section className="hero glass-panel">
+        <div className="hero-copy">
+          <span className="eyebrow">Premium Android community archive</span>
+          <h1>Your Trusted Android ROM Download Hub</h1>
+          <p>
+            Download ROMs, firmware, recovery files and other software for supported Redmi and POCO devices.
+          </p>
+          <div className="search-box">
+            <span className="search-icon">⌕</span>
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search devices or ROMs"
+              aria-label="Search devices or ROMs"
+            />
+          </div>
+        </div>
+
+        <div className="hero-badges">
+          <div className="stat-badge">
+            <strong>24K+</strong>
+            <span>Downloads</span>
+          </div>
+          <div className="stat-badge">
+            <strong>7</strong>
+            <span>ROM Types</span>
+          </div>
+          <div className="stat-badge">
+            <strong>2</strong>
+            <span>Featured Devices</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="device-showcase">
+        {loading ? (
+          <SkeletonGrid count={2} />
+        ) : filteredDevices.length > 0 ? (
+          filteredDevices.map((device) => (
+            <DeviceCard key={device.id} device={device} />
+          ))
+        ) : (
+          <EmptyState
+            title="No device match found"
+            text="Try searching for a name like Redmi or Android 13."
+          />
+        )}
+      </section>
+
+      <section className="section-block">
+        <SectionHeader title="Latest ROM releases" actionLabel="Browse all ROMs" actionTo="/roms" />
+        <div className="card-grid compact-grid">
+          {latestRoms.map((rom) => (
+            <RomCard key={rom.id} rom={rom} compact />
+          ))}
+        </div>
+      </section>
+
+      <section className="section-block">
+        <SectionHeader title="Recently added files" actionLabel="View archive" actionTo="/roms" />
+        <div className="recent-list">
+          {recentFiles.map((rom) => (
+            <div key={rom.id} className="recent-item glass-panel">
+              <div>
+                <strong>{rom.name}</strong>
+                <span>{rom.device}</span>
+              </div>
+              <small>{formatDate(rom.releaseDate)}</small>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function DevicePage() {
+  const { slug } = useParams();
+  const device = deviceList.find((item) => item.id === slug);
+  const [search, setSearch] = useState('');
+  const [selectedType, setSelectedType] = useState('All');
+  const [selectedAndroid, setSelectedAndroid] = useState('All');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 450);
+    return () => clearTimeout(timer);
+  }, [slug]);
+
+  if (!device) {
+    return <NotFoundPage />;
+  }
+
+  const deviceRoms = roms.filter((rom) => rom.deviceId === device.id);
+  const filteredRoms = deviceRoms.filter((rom) => {
+    const matchesSearch =
+      !search ||
+      rom.name.toLowerCase().includes(search.toLowerCase()) ||
+      rom.type.toLowerCase().includes(search.toLowerCase()) ||
+      rom.androidVersion.toLowerCase().includes(search.toLowerCase());
+
+    const matchesType = selectedType === 'All' || rom.type === selectedType;
+    const matchesAndroid = selectedAndroid === 'All' || rom.androidVersion === selectedAndroid;
+
+    return matchesSearch && matchesType && matchesAndroid;
+  });
+
+  return (
+    <div className="device-page">
+      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: device.name }]} />
+
+      <section className="device-header glass-panel">
+        <div className="device-header-copy">
+          <span className="eyebrow">Device profile</span>
+          <h1>{device.name}</h1>
+          <p>{device.shortText}</p>
+          <div className="device-meta">
+            <span>Codename: {device.codename}</span>
+            <span>Available ROMs: {device.romCount}</span>
+          </div>
+        </div>
+        <div className="device-emoji">{device.image}</div>
+      </section>
+
+      <section className="device-panels">
+        <div className="glass-panel info-panel">
+          <h3>Overview</h3>
+          <p>
+            A premium device profile supported by community testing, custom recovery, stable stock updates, and payload-ready firmware packages.
+          </p>
+        </div>
+
+        <div className="glass-panel info-panel specs-panel">
+          <h3>Specifications</h3>
+          <ul>
+            {device.specs.map((spec) => (
+              <li key={spec.label}>
+                <span>{spec.label}</span>
+                <strong>{spec.value}</strong>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="filter-panel glass-panel">
+        <div className="search-box compact">
+          <span className="search-icon">⌕</span>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search ROMs or Android versions"
+          />
+        </div>
+
+        <div className="filter-row">
+          <select value={selectedType} onChange={(event) => setSelectedType(event.target.value)}>
+            <option value="All">All types</option>
+            {device.categories.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+
+          <select value={selectedAndroid} onChange={(event) => setSelectedAndroid(event.target.value)}>
+            <option value="All">All Android versions</option>
+            {device.androidVersions.map((version) => (
+              <option key={version} value={version}>
+                {version}
+              </option>
+            ))}
+          </select>
+        </div>
+      </section>
+
+      <section className="section-block">
+        <SectionHeader title="Available ROM categories" />
+        <div className="chip-row">
+          {device.categories.map((category) => (
+            <span key={category} className="chip glass-panel">
+              {category}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <section className="section-block">
+        <SectionHeader title="ROM downloads" />
+        {loading ? (
+          <SkeletonGrid count={4} />
+        ) : filteredRoms.length > 0 ? (
+          <div className="card-grid">
+            {filteredRoms.map((rom) => (
+              <RomCard key={rom.id} rom={rom} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState title="No ROMs found" text="Adjust your search or try another ROM category." />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function RomsPage() {
+  const [search, setSearch] = useState('');
+  const [selectedType, setSelectedType] = useState('All');
+  const [selectedAndroid, setSelectedAndroid] = useState('All');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const filteredRoms = roms.filter((rom) => {
+    const matchesSearch =
+      !search ||
+      rom.name.toLowerCase().includes(search.toLowerCase()) ||
+      rom.device.toLowerCase().includes(search.toLowerCase()) ||
+      rom.type.toLowerCase().includes(search.toLowerCase());
+
+    const matchesType = selectedType === 'All' || rom.type === selectedType;
+    const matchesAndroid = selectedAndroid === 'All' || rom.androidVersion === selectedAndroid;
+
+    return matchesSearch && matchesType && matchesAndroid;
+  });
+
+  return (
+    <div className="roms-page">
+      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'ROMs' }]} />
+      <section className="section-block">
+        <SectionHeader title="Latest available ROMs" />
+        <div className="filter-panel glass-panel">
+          <div className="search-box compact">
+            <span className="search-icon">⌕</span>
+            <input
+              type="search"
+              placeholder="Search ROMs or devices"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+
+          <div className="filter-row">
+            <select value={selectedType} onChange={(event) => setSelectedType(event.target.value)}>
+              <option value="All">All categories</option>
+              {['Stock ROM', 'Custom ROM', 'Recovery', 'Firmware', 'GApps', 'Kernel', 'Other Files'].map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+
+            <select value={selectedAndroid} onChange={(event) => setSelectedAndroid(event.target.value)}>
+              <option value="All">All Android versions</option>
+              {['Android 14', 'Android 13', 'Android 12', 'Android 11'].map((version) => (
+                <option key={version} value={version}>
+                  {version}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section className="section-block">
+        {loading ? (
+          <SkeletonGrid count={6} />
+        ) : filteredRoms.length > 0 ? (
+          <div className="card-grid">
+            {filteredRoms.map((rom) => (
+              <RomCard key={rom.id} rom={rom} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState title="No ROMs match your filters" text="Reset your search or choose another Android version." />
+        )}
+      </section>
+    </div>
+  );
+}
+
+function DownloadPage() {
+  const { romId } = useParams();
+  const rom = roms.find((item) => item.id === romId);
+  const [copied, setCopied] = useState(false);
+
+  if (!rom) {
+    return <NotFoundPage />;
+  }
+
+  const handleCopy = async () => {
+    if (!rom.checksum) return;
+    try {
+      await navigator.clipboard.writeText(rom.checksum);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch (error) {
+      console.error('Copy failed', error);
+    }
+  };
+
+  return (
+    <div className="download-page">
+      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: rom.device, to: `/${rom.deviceId}` }, { label: rom.name }]} />
+
+      <section className="download-header glass-panel">
+        <div>
+          <span className="eyebrow">Download details</span>
+          <h1>{rom.name}</h1>
+          <p>
+            {rom.device} · {rom.codename} · {rom.version}
+          </p>
+        </div>
+        <div className="download-actions">
+          <a className="button primary" href={rom.downloadUrl} target="_blank" rel="noreferrer">
+            Download ROM
+          </a>
+          {rom.mirrorUrl ? (
+            <a className="button secondary" href={rom.mirrorUrl} target="_blank" rel="noreferrer">
+              Mirror download
+            </a>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="download-grid">
+        <div className="glass-panel details-panel">
+          <h3>File information</h3>
+          <ul className="detail-list">
+            <li><span>File size</span><strong>{rom.size}</strong></li>
+            <li><span>Version</span><strong>{rom.version}</strong></li>
+            <li><span>Build</span><strong>{rom.build}</strong></li>
+            <li><span>Android</span><strong>{rom.androidVersion}</strong></li>
+            <li><span>Release date</span><strong>{formatDate(rom.releaseDate)}</strong></li>
+            <li><span>Maintainer</span><strong>{rom.maintainer}</strong></li>
+            <li>
+              <span>Checksum</span>
+              <div className="checksum-box">
+                <strong>{rom.checksum || 'N/A'}</strong>
+                {rom.checksum ? (
+                  <button type="button" className="copy-button" onClick={handleCopy}>
+                    {copied ? 'Copied' : 'Copy'}
+                  </button>
+                ) : null}
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div className="glass-panel notice-panel">
+          <h3>Important reminder</h3>
+          <p>
+            Always verify the device codename and firmware compatibility before flashing. This sample portal is meant for demonstration and does not host copyrighted ROM files directly.
+          </p>
+          <a className="button subtle" href={rom.changelog} target="_blank" rel="noreferrer">
+            View changelog
+          </a>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function GuidesPage() {
+  return (
+    <div className="content-page">
+      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Guides' }]} />
+      <section className="glass-panel content-box">
+        <h1>Device guides</h1>
+        <p>
+          Step-by-step flashing instructions, bootloader unlock notes, and safe recovery procedures for supported models.
+        </p>
+        <ul className="info-list">
+          <li>How to unlock the bootloader safely</li>
+          <li>Fastboot vs recovery flashing basics</li>
+          <li>How to verify unofficial builds and checksums</li>
+        </ul>
+      </section>
+    </div>
+  );
+}
+
+function AboutPage() {
+  return (
+    <div className="content-page">
+      <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'About' }]} />
+      <section className="glass-panel content-box">
+        <h1>About ROM Vault</h1>
+        <p>
+          ROM Vault is designed for Android enthusiasts who want a clean, reliable way to discover ROMs, firmware, and recovery files for supported Redmi and POCO devices.
+        </p>
+        <p>
+          All sample entries in this demo are clearly marked as illustrative data and use placeholder download links for frontend development purposes.
+        </p>
+      </section>
+    </div>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <div className="content-page">
+      <section className="glass-panel content-box not-found">
+        <h1>404</h1>
+        <p>The page you were looking for does not exist.</p>
+        <Link to="/" className="button primary">
+          Back home
+        </Link>
+      </section>
+    </div>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="site-footer glass-panel">
+      <p>ROM Vault © 2024 · Demo portal for Redmi Note 11T 5G and POCO M4 Pro</p>
+    </footer>
+  );
+}
+
+function DeviceCard({ device }) {
+  return (
+    <Link to={`/${device.id}`} className="device-card glass-panel">
+      <div className="device-card-top">
+        <div className="device-icon">{device.image}</div>
+        <span className="device-badge">{device.androidVersions[0]}</span>
+      </div>
+      <div className="device-card-body">
+        <h3>{device.name}</h3>
+        <p>Codename: {device.codename}</p>
+        <div className="device-meta-row">
+          <span>{device.romCount} ROMs</span>
+          <span>{device.androidVersions[0]}</span>
+        </div>
+      </div>
+      <button type="button" className="button primary">
+        View ROMs
+      </button>
+    </Link>
+  );
+}
+
+function RomCard({ rom, compact = false }) {
+  return (
+    <article className="rom-card glass-panel">
+      <div className="rom-card-head">
+        <div>
+          <span className="type-pill">{rom.type}</span>
+          <h3>{rom.name}</h3>
+        </div>
+        {compact ? <span className="mini-meta">{rom.device}</span> : null}
+      </div>
+
+      <div className="rom-grid">
+        <div>
+          <label>Android</label>
+          <strong>{rom.androidVersion}</strong>
+        </div>
+        <div>
+          <label>Build</label>
+          <strong>{rom.build}</strong>
+        </div>
+        <div>
+          <label>Size</label>
+          <strong>{rom.size}</strong>
+        </div>
+        <div>
+          <label>Release</label>
+          <strong>{formatDate(rom.releaseDate)}</strong>
+        </div>
+      </div>
+
+      <div className="rom-footer">
+        <div className="maintainer">{rom.maintainer}</div>
+        <div className="action-row">
+          <a className="button subtle" href={rom.changelog} target="_blank" rel="noreferrer">
+            Changelog
+          </a>
+          <Link className="button primary" to={`/download/${rom.id}`}>
+            Download
+          </Link>
+          {rom.mirrorUrl ? (
+            <a className="button ghost" href={rom.mirrorUrl} target="_blank" rel="noreferrer">
+              Mirror
+            </a>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function SectionHeader({ title, actionLabel, actionTo }) {
+  return (
+    <div className="section-header">
+      <h2>{title}</h2>
+      {actionLabel && actionTo ? (
+        <Link to={actionTo} className="action-link">
+          {actionLabel}
+        </Link>
+      ) : null}
+    </div>
+  );
+}
+
+function Breadcrumbs({ items }) {
+  return (
+    <nav className="breadcrumbs" aria-label="Breadcrumb">
+      {items.map((item, index) => (
+        <span key={index} className="breadcrumb-item">
+          {item.to ? <Link to={item.to}>{item.label}</Link> : <span>{item.label}</span>}
+          {index < items.length - 1 ? <span className="crumb-separator">/</span> : null}
+        </span>
+      ))}
+    </nav>
+  );
+}
+
+function EmptyState({ title, text }) {
+  return (
+    <div className="empty-state glass-panel">
+      <h3>{title}</h3>
+      <p>{text}</p>
+    </div>
+  );
+}
+
+function SkeletonGrid({ count = 4 }) {
+  return (
+    <div className="card-grid">
+      {Array.from({ length: count }).map((_, index) => (
+        <div key={index} className="skeleton-card glass-panel">
+          <div className="skeleton-line short" />
+          <div className="skeleton-line" />
+          <div className="skeleton-line" />
+          <div className="skeleton-line small" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default App;
