@@ -1,1 +1,16 @@
-export const devices = [\n  {\n    id: 'redmi-note-11t-5g',\n    name: 'Redmi Note 11T 5G',\n    codename: 'xaga',\n    manufacturer: 'Xiaomi',\n    androidVersions: ['Android 13', 'Android 12', 'Android 11'],\n    icon: '📱',\n    supportedRomCount: 14,\n    shortText: 'Performance-focused 5G-ready device with MediaTek Dimensity 810 and a bright 6.6\" FHD+ display.',\n    specs: [\n      { label: 'Display', value: '6.6\" FHD+ 120Hz AMOLED' },\n      { label: 'Chipset', value: 'MediaTek Dimensity 810' },\n      { label: 'RAM', value: '6GB / 8GB' },\n      { label: 'Storage', value: '128GB (UFS 2.2)' },\n      { label: 'Battery', value: '5000mAh, 33W fast charging' },\n      { label: 'Rear Camera', value: '50MP + 8MP + 2MP' },\n      { label: 'Front Camera', value: '16MP' },\n    ],\n    categories: ['Stock ROM', 'Custom ROM', 'Recovery', 'Firmware', 'Kernel'],\n  },\n  {\n    id: 'poco-m4-pro',\n    name: 'POCO M4 Pro',\n    codename: 'miles',\n    manufacturer: 'Xiaomi',\n    androidVersions: ['Android 13', 'Android 12', 'Android 11'],\n    icon: '⚡',\n    supportedRomCount: 11,\n    shortText: 'Value-packed device with smooth performance, 90Hz refresh rate, and strong community support.',\n    specs: [\n      { label: 'Display', value: '6.43\" FHD+ 90Hz AMOLED' },\n      { label: 'Chipset', value: 'MediaTek Helio G96' },\n      { label: 'RAM', value: '4GB / 6GB' },\n      { label: 'Storage', value: '64GB / 128GB (UFS 2.1)' },\n      { label: 'Battery', value: '5000mAh, 33W fast charging' },\n      { label: 'Rear Camera', value: '64MP + 8MP + 2MP' },\n      { label: 'Front Camera', value: '20MP' },\n    ],\n    categories: ['Stock ROM', 'Custom ROM', 'Recovery', 'GApps', 'Firmware'],\n  },\n];\n\nexport const getDeviceById = (id) => devices.find((d) => d.id === id);\n\nexport const getAllDevices = () => devices;\n
+export const devices = [
+  {
+    id: 'redmi-note-11t-5g', name: 'Redmi Note 11T 5G', codename: 'xaga', manufacturer: 'Xiaomi',
+    androidVersions: ['Android 14', 'Android 13', 'Android 12', 'Android 11'], romCount: 5, firmware: 'Available', accent: 'cyan',
+    summary: 'A performance-focused 5G device powered by the MediaTek Dimensity 810.',
+    specs: [{ label: 'Display', value: '6.6” FHD+ 120Hz' }, { label: 'Chipset', value: 'MediaTek Dimensity 810' }, { label: 'Memory', value: '6/8GB + 128GB' }, { label: 'Battery', value: '5000mAh / 33W' }]
+  },
+  {
+    id: 'poco-m4-pro', name: 'POCO M4 Pro', codename: 'miles', manufacturer: 'Xiaomi',
+    androidVersions: ['Android 14', 'Android 13', 'Android 12', 'Android 11'], romCount: 4, firmware: 'Available', accent: 'violet',
+    summary: 'A value-packed daily driver with a smooth display and an active community.',
+    specs: [{ label: 'Display', value: '6.43” FHD+ 90Hz' }, { label: 'Chipset', value: 'MediaTek Helio G96' }, { label: 'Memory', value: '4/6GB + 64/128GB' }, { label: 'Battery', value: '5000mAh / 33W' }]
+  }
+];
+export const getDeviceById = (id) => devices.find((device) => device.id === id);
+export const getAllDevices = () => devices;
